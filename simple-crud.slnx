@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path="schema.sql" />
+  </Folder>
   <Project Path="simple-crud.Api/simple-crud.Api.csproj" />
   <Project Path="simple-crud.Client/simple-crud.Client.csproj" />
   <Project Path="simple-crud.Library/simple-crud.Library.csproj" />
