@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="simple-crud.Api/simple-crud.Api.csproj" />
+  <Project Path="simple-crud.Client/simple-crud.Client.csproj" />
+  <Project Path="simple-crud.Library/simple-crud.Library.csproj" />
+</Solution>
