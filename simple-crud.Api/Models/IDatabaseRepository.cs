@@ -24,4 +24,22 @@ public interface IDatabaseRepository
     /// </summary>
     /// <param name="createUsuarioDTO">Un objeto que contiene la información requerida para crear el usuario. No puede ser nulo.</param>
     Task<OperationResult<Usuario>> CreateUsuario(CreateUsuarioDTO createUsuarioDTO);
+
+    /// <summary>
+    /// Regresa un usuario si las credenciales son válidas.
+    /// </summary>
+    /// <param name="loginUsuarioDTO">Los detalles de inicio de sesión del usuario.</param>
+    Task<OperationResult<Usuario?>> LoginUsuario(LoginUsuarioDTO loginUsuarioDTO);
+
+    /// <summary>
+    /// Se encarga de eliminar un usuario de la base de datos.
+    /// </summary>
+    /// <param name="deleteUsuarioDTO">Información necesaria para eliminar el usuario.</param>
+    Task<OperationResult> DeleteUsuario(DeleteUsuarioDTO deleteUsuarioDTO);
+
+    /// <summary>
+    /// Actualiza la información de un usuario existente en la base de datos.
+    /// </summary>
+    /// <param name="updateUsuarioDTO">Información necesaria para actualizar el usuario.</param>
+    Task<OperationResult<Usuario?>> UpdateUsuario(UpdateUsuarioDTO updateUsuarioDTO);
 }

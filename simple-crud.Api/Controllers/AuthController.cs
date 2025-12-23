@@ -1,0 +1,47 @@
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+
+using simple_crud.Api.Models;
+using simple_crud.Library.Models.DTOs;
+
+using System.Security.Claims;
+
+namespace simple_crud.Api.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AuthController : ControllerBase
+{
+    private readonly IDatabaseRepository databaseRepository;
+
+    public AuthController(IDatabaseRepository databaseRepository)
+    {
+        this.databaseRepository = databaseRepository;
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginUsuarioDTO loginUsuarioDTO)
+    {
+        var operationLogin = await databaseRepository.LoginUsuario(loginUsuarioDTO);
+        if (!operationLogin.Success)
+            return Problem(detail: operationLogin.Message);
+        var loggedInUsuario = operationLogin.Value!;
+
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, loggedInUsuario.Id.ToString()),
+            new(ClaimTypes.Name, loggedInUsuario.Username)
+        };
+
+        await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(claims, "login")));
+
+        return Ok(new { loggedInUsuario.Id, loggedInUsuario.Username });
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync();
+        return Ok();
+    }
+}

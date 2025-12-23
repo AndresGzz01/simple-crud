@@ -19,3 +19,37 @@ Content-Type: application/json
   "username": "AndersonSilva2",
   "password": "thisisansecretpassword"
 }
+
+###
+
+POST {{simple_crud.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+{
+  "username": "ANDERSONSILVA2",
+  "password": "thisisansecretpassword"
+}
+
+###
+
+POST {{simple_crud.Api_HostAddress}}/api/auth/logout
+
+###
+
+DELETE {{simple_crud.Api_HostAddress}}/api/usuario
+Content-Type: application/json
+{
+  "id": "3",
+  "password": "thisisansecretpassword"
+}
+
+###
+
+PUT {{simple_crud.Api_HostAddress}}/api/usuario
+Content-Type: application/json
+{
+  "id": "5",
+  "username": "AndersonSilvaUpdated2",
+  "password": "thisisansecretpassword"
+}
+
+###

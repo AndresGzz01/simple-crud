@@ -56,4 +56,26 @@ public class UsuarioController : ControllerBase
         var createdUsuario = operationCreate.Value!;
         return CreatedAtAction(nameof(GetUsuarioById), new { id = createdUsuario.Id }, new { createdUsuario.Id, createdUsuario.Username });
     }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteUsuario([FromBody] DeleteUsuarioDTO deleteUsuarioDTO)
+    {
+        var operationDelete = await databaseRepository.DeleteUsuario(deleteUsuarioDTO);
+
+        if (!operationDelete.Success)
+            return Problem(detail: operationDelete.Message);
+        
+        return NoContent();
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateUsuario([FromBody] UpdateUsuarioDTO updateUsuarioDTO)
+    {
+        var operationUpdate = await databaseRepository.UpdateUsuario(updateUsuarioDTO);
+        if (!operationUpdate.Success)
+            return Problem(detail: operationUpdate.Message);
+
+        var updatedUsuario = operationUpdate.Value!;
+        return Ok(new { updatedUsuario.Id, updatedUsuario.Username });
+    }
 }

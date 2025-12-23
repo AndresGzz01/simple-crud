@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 using MySqlConnector;
 
 using simple_crud.Api.Infrastructure;
@@ -23,6 +25,13 @@ builder.Services.AddScoped<DbConnection>(d =>
 builder.Services.AddScoped<IDatabaseRepository, MariaDbRepository>();
 builder.Services.AddScoped<IPasswordHasher, Argon2Hasher>();
 
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(opt =>
+    {
+        opt.Cookie.Name = "simple-crud-auth-cookie";
+    });
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -31,6 +40,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
