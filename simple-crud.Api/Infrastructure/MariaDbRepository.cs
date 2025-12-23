@@ -23,12 +23,12 @@ public class MariaDbRepository : IDatabaseRepository
     {
         try
         {
-            createUsuarioDTO.Username = createUsuarioDTO.Username.Trim().ToUpper();
+            createUsuarioDTO.Username = createUsuarioDTO.Username.Trim();
 
             await dbConnection.OpenAsync();
 
             var existQuery = "SELECT COUNT(1) FROM usuario WHERE upper(Username) = @username";
-            var exist = await dbConnection.ExecuteScalarAsync<int>(existQuery, new { username = createUsuarioDTO.Username });
+            var exist = await dbConnection.ExecuteScalarAsync<int>(existQuery, new { username = createUsuarioDTO.Username.ToUpper() });
 
             if (exist > 0)
                 return new OperationResult<Usuario>(false, "El nombre de usuario ya existe.");
