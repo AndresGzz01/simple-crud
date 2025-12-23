@@ -4,3 +4,18 @@ GET {{simple_crud.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+GET {{simple_crud.Api_HostAddress}}/api/usuario
+
+###
+
+GET {{simple_crud.Api_HostAddress}}/api/usuario/1
+
+###
+
+POST {{simple_crud.Api_HostAddress}}/api/usuario
+Content-Type: application/json
+{
+  "username": "AndersonSilva",
+  "password": "thisisansecretpassword"
+}

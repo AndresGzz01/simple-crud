@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using simple_crud.Api.Models;
+using simple_crud.Library.Models.DTOs;
 
 namespace simple_crud.Api.Controllers;
 
@@ -15,6 +16,20 @@ public class UsuarioController : ControllerBase
         this.databaseRepository = databaseRepository;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetUsuarios()
+    {
+        var operationUsuarios = await databaseRepository.GetUsuarios();
+     
+        if (!operationUsuarios.Success)
+            return Problem(detail: operationUsuarios.Message);
+        
+        var usuarios = operationUsuarios.Value!;
+        var result = usuarios.Select(usuario => new { usuario.Id, usuario.Username });
+        
+        return Ok(result);
+    }
+
     [HttpGet("{id:required}")]
     public async Task<IActionResult> GetUsuarioById(uint id)
     {
@@ -23,7 +38,22 @@ public class UsuarioController : ControllerBase
         if (!operationUsuario.Success)
             return Problem(detail: operationUsuario.Message);
 
+        if (operationUsuario.Value is null)
+            return NotFound();
+
         var usuario = operationUsuario.Value!;
         return Ok(new { usuario.Id, usuario.Username });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateUsuario([FromBody] CreateUsuarioDTO createUsuarioDTO)
+    {
+        var operationCreate = await databaseRepository.CreateUsuario(createUsuarioDTO);
+
+        if (!operationCreate.Success)
+            return Problem(detail: operationCreate.Message);
+
+        var createdUsuario = operationCreate.Value!;
+        return CreatedAtAction(nameof(GetUsuarioById), new { id = createdUsuario.Id }, new { createdUsuario.Id, createdUsuario.Username });
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace simple_crud.Library;
+﻿namespace simple_crud.Library.Models;
 
 /// <summary>
 /// Clase que representa el resultado de una operación con un resultado genérico.
