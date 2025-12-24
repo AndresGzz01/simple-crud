@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 using simple_crud.Api.Models;
 using simple_crud.Library.Models.DTOs;
 
 namespace simple_crud.Api.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class UsuarioController : ControllerBase
@@ -45,6 +47,7 @@ public class UsuarioController : ControllerBase
         return Ok(new { usuario.Id, usuario.Username });
     }
 
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> CreateUsuario([FromBody] CreateUsuarioDTO createUsuarioDTO)
     {

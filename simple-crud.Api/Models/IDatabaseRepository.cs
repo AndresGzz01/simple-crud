@@ -42,4 +42,10 @@ public interface IDatabaseRepository
     /// </summary>
     /// <param name="updateUsuarioDTO">Información necesaria para actualizar el usuario.</param>
     Task<OperationResult<Usuario?>> UpdateUsuario(UpdateUsuarioDTO updateUsuarioDTO);
+
+    /// <summary>
+    /// Obtiene los posts asociados a un usuario específico por su ID.
+    /// </summary>
+    /// <param name="usuarioId">Indica el identificador único de cada usuario.</param>
+    Task<OperationResult<IEnumerable<Post>>> GetPostsByUsuarioId(uint usuarioId);
 }

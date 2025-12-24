@@ -95,6 +95,27 @@ public class MariaDbRepository : IDatabaseRepository
         }
     }
 
+    public async Task<OperationResult<IEnumerable<Post>>> GetPostsByUsuarioId(uint usuarioId)
+    {
+        try
+        {
+            dbConnection.Open();
+
+            var query = "SELECT Id, Titulo, UltimaActualizacion, Contenido, IdUsuario FROM post WHERE IdUsuario = @usuarioId";
+            var posts = await dbConnection.QueryAsync<Post>(query, new { usuarioId });
+
+            return new OperationResult<IEnumerable<Post>>(true, value: posts);
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult<IEnumerable<Post>>(false, $"Error al obtener los posts del usuario con Id {usuarioId}.", exception: ex);
+        }
+        finally
+        {
+            dbConnection.Close();
+        }
+    }
+
     public async Task<OperationResult<Usuario?>> GetUsuarioById(uint id)
     {
         try
