@@ -6,4 +6,91 @@
 
 body {
     margin: 0;
+    display: grid;
+    grid-template-areas:
+        "header"
+        "main"
+        "footer";
+    grid-template-rows: 1fr auto 1fr;
+    font-family: "Google Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-variation-settings: "GRAD" 0;
+    height: 100dvh;
 }
+
+header {
+    grid-area: header;
+    background-color: #f5f5ea;
+    color: #141510;
+    padding: 0.5rem 2rem;
+    border-bottom: 1px solid #f4f4f4;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-height: 4rem;
+}
+
+header h2, 
+header a {
+    margin: 0px;
+    display: inline-block;
+    align-self: center
+}
+
+    header h2 {
+        font-size: 1.2rem;
+    }
+
+    header a {
+        color: var(--primary-color);
+        padding: 0.7rem 1.6rem;
+        border-radius: 0.9rem;
+        text-decoration: none;
+        transition: background-color ease-in 0.2s;
+    }
+
+        header a:hover {
+            background-color: #dddddd88;
+        }
+
+.header-user-options {
+    align-self: center
+}
+
+main {
+    grid-area: main;
+    min-height: 80dvh;
+    padding: 1rem;
+}
+
+main h1 {
+    margin: 0px;
+}
+
+footer {
+    grid-area: footer;
+    background-color: #141510;
+    padding: 2rem;
+    margin-top: 1rem;
+    color: #fff;
+    position: relative;
+}
+
+    footer .footer-legend {
+        text-align: center;
+        display: inline-block;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0.4rem;
+        font-size: 0.7rem
+    }
+
+    @media (width >= 1024px) {
+        main {
+            width: 100%;
+            max-width: 60%;
+            margin: 0px auto;
+        }
+    }
