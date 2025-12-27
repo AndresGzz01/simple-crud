@@ -8,7 +8,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddHttpClient("api", client =>
 {
-    client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+    client.BaseAddress = new Uri("http://simple-crud.api.andresgilglz.dev/api/");
 }).ConfigurePrimaryHttpMessageHandler(() =>
 {
     return new HttpClientHandler
