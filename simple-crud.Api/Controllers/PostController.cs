@@ -18,7 +18,7 @@ public class PostController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("/usuarios/{usuarioId}/posts")]
+    [HttpGet("/api/usuario/{usuarioId}/posts")]
     public async Task<IActionResult> GetPostsByUsuarioId(uint usuarioId)
     {
         var result = await databaseRepository.GetPostsByUsuarioId(usuarioId);

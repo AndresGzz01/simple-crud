@@ -5,6 +5,8 @@ namespace simple_crud.Client.Models;
 
 public interface IBlogService
 {
+    Task<OperationResult> RegisterAsync(CreateUsuarioDTO createUsuarioDTO);
+
     Task<OperationResult> LoginAsync(LoginUsuarioDTO loginUsuarioDTO);
 
     Task<OperationResult> LogoutAsync();

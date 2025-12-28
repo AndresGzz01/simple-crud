@@ -47,19 +47,6 @@ public class UsuarioController : ControllerBase
         return Ok(new { usuario.Id, usuario.Username });
     }
 
-    [AllowAnonymous]
-    [HttpPost]
-    public async Task<IActionResult> CreateUsuario([FromBody] CreateUsuarioDTO createUsuarioDTO)
-    {
-        var operationCreate = await databaseRepository.CreateUsuario(createUsuarioDTO);
-
-        if (!operationCreate.Success)
-            return Problem(detail: operationCreate.Message);
-
-        var createdUsuario = operationCreate.Value!;
-        return CreatedAtAction(nameof(GetUsuarioById), new { id = createdUsuario.Id }, new { createdUsuario.Id, createdUsuario.Username });
-    }
-
     [HttpDelete]
     public async Task<IActionResult> DeleteUsuario([FromBody] DeleteUsuarioDTO deleteUsuarioDTO)
     {

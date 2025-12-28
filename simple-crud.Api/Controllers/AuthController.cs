@@ -19,6 +19,27 @@ public class AuthController : ControllerBase
         this.databaseRepository = databaseRepository;
     }
 
+    [HttpPost("register")]
+    public async Task<IActionResult> CreateUsuario([FromBody] CreateUsuarioDTO createUsuarioDTO)
+    {
+        var operationCreate = await databaseRepository.CreateUsuario(createUsuarioDTO);
+
+        if (!operationCreate.Success)
+            return Problem(detail: operationCreate.Message);
+
+        var createdUsuario = operationCreate.Value!;
+
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, createdUsuario.Id.ToString()),
+            new(ClaimTypes.Name, createdUsuario.Username)
+        };
+
+        await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(claims, "login")));
+
+        return Ok(new { createdUsuario.Id, createdUsuario.Username });
+    }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUsuarioDTO loginUsuarioDTO)
     {

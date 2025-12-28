@@ -55,4 +55,24 @@ public class LabsystecBlogService : IBlogService
             return new OperationResult(false, "An error occurred during logout.", ex);
         }
     }
+
+    public async Task<OperationResult> RegisterAsync(CreateUsuarioDTO createUsuarioDTO)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("auth/register", createUsuarioDTO);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                return new OperationResult(false, $"Registration failed: {errorMessage}");
+            }
+
+            return new OperationResult(true, "Registration successful.");
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult(false, ex.Message);
+        }
+    }
 }

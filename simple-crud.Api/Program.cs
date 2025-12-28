@@ -15,7 +15,7 @@ builder.Services.AddOptions<Argon2Options>()
     .ValidateOnStart();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+//builder.Services.AddOpenApi();
  
 builder.Services.AddScoped<DbConnection>(d =>
 {
@@ -34,10 +34,10 @@ builder.Services
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.MapOpenApi();
+//}
 
 app.UseHttpsRedirection();
 
