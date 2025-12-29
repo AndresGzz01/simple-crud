@@ -21,10 +21,10 @@ builder.Services.AddScoped(sp =>
     return client;
 });
 
-
 builder.Services.AddScoped<IBlogService, LabsystecBlogService>();
 
 builder.Services.AddScoped<CreateUserValidator>();
+builder.Services.AddScoped<LoginValidator>();
 
 builder.Services.AddSingleton<LoaderService>();
 

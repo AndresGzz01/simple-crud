@@ -22,12 +22,12 @@ public class LabsystecBlogService : IBlogService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/auth/login", loginUsuarioDTO);
+            var response = await _httpClient.PostAsJsonAsync("auth/login", loginUsuarioDTO);
          
             if (!response.IsSuccessStatusCode)
             {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                return new OperationResult(false, $"Login failed: {errorMessage}");
+                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+                return new OperationResult(false, $"{problem?.Detail ?? "Error desconocido"}");
             }
 
             return new OperationResult(true, "Login successful.");
@@ -42,14 +42,14 @@ public class LabsystecBlogService : IBlogService
     {
         try
         {
-            var response = await _httpClient.PostAsync("api/auth/logout", null);
+            var response = await _httpClient.PostAsync("auth/logout", null);
             
             if (!response.IsSuccessStatusCode)
             {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                return new OperationResult(false, $"Logout failed: {errorMessage}");
-            
+                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+                return new OperationResult(false, $"{problem?.Detail ?? "Error desconocido"}");
             }
+
             return new OperationResult(true, "Logout successful.");
         }
         catch (Exception ex)
