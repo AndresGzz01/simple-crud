@@ -5,6 +5,8 @@ using simple_crud.Library.Models.DTOs;
 
 using System.Net.Http.Json;
 
+using Microsoft.AspNetCore.Mvc;
+
 namespace simple_crud.Client.Infrastructure;
 
 public class LabsystecBlogService : IBlogService
@@ -64,8 +66,8 @@ public class LabsystecBlogService : IBlogService
             
             if (!response.IsSuccessStatusCode)
             {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                return new OperationResult(false, $"Registration failed: {errorMessage}");
+                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+                return new OperationResult(false, $"{problem?.Detail ?? "Error desconocido"}");
             }
 
             return new OperationResult(true, "Registration successful.");

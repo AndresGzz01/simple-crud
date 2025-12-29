@@ -1,19 +1,44 @@
 ﻿@page "/registrarme"
 @inject IBlogService blogService
+@inject CreateUserValidator createUserValidator
+@inject LoaderService loaderService
 
+@using simple_crud.Client.Infrastructure
+@using simple_crud.Client.Validator.User
 @using simple_crud.Library.Models.DTOs
 
 <h3>Registrarme</h3>
 
 <form onsubmit="@OnSubmit">
-    <label for="username">Nombre de usuario</label>
-    <input type="text" id="username" @bind="Username" />
 
-    <label for="password">Contraseña</label>
-    <input type="password" id="password" @bind="Password" />
+    <div class="form-input">
+        <label for="username">Nombre de usuario</label>
+        <input type="text" id="username" @bind="Model.Username" />
+        @if (ValidationErrors.ContainsKey(nameof(Model.Username)))
+        {
+            <p class="input-error">@ValidationErrors[nameof(Model.Username)]</p>
+        }
+    </div>
 
-    <label for="confirmpassword">Confirmar contraseña</label>
-    <input type="password" id="confirmpassword" @bind="ConfirmPassword" />
+    <div class="form-input">
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" @bind="Model.Password" />
+        @if (ValidationErrors.ContainsKey(nameof(Model.Password)))
+        {
+            <p class="input-error">@ValidationErrors[nameof(Model.Password)]</p>
+        }
+    </div>
+
+    <div class="form-input">
+
+        <label for="confirmpassword">Confirmar contraseña</label>
+        <input type="password" id="confirmpassword" @bind="Model.ConfirmPassword" />
+        @if (ValidationErrors.ContainsKey(nameof(Model.ConfirmPassword)))
+        {
+            <p class="input-error">@ValidationErrors[nameof(Model.ConfirmPassword)]</p>
+        }
+    </div>
 
     <input type="submit" value="Confirmar" />
 </form>
@@ -24,29 +49,50 @@
 }
 
 @code {
-    private string? Username { get; set; }
-    private string? Password { get; set; }
-    private string? ConfirmPassword { get; set; }
+    private RegisterViewModel Model { get; set; } = new();
+    private Dictionary<string, string> ValidationErrors { get; set; } = new();
     private string ErrorMessage { get; set; } = string.Empty;
 
     private async Task OnSubmit()
     {
-        // Validación manual
-        if (Password != ConfirmPassword)
+        ErrorMessage = string.Empty;
+        ValidationErrors.Clear();
+
+        var validationResult = await createUserValidator.ValidateAsync(Model);
+
+        if (!validationResult.IsValid)
         {
-            Console.WriteLine("Las contraseñas no coinciden");
-            return;
+            foreach (var error in validationResult.Errors)
+            {
+                // Guardamos el primer error por propiedad
+                if (!ValidationErrors.ContainsKey(error.PropertyName))
+                    ValidationErrors[error.PropertyName] = error.ErrorMessage;
+            }
+            return; // detenemos aquí si hay errores
         }
 
-        var dto = new CreateUsuarioDTO
+        try
         {
-            Username = Username!,
-            Password = Password!
-        };
+            loaderService.Show();
 
-        var operationRegister = await blogService.RegisterAsync(dto);
+            var dto = new CreateUsuarioDTO
+            {
+                Username = Model.Username!,
+                Password = Model.Password!
+            };
 
-        if (!operationRegister.Success)
-            ErrorMessage = operationRegister.Message!;
+            var operationRegister = await blogService.RegisterAsync(dto);
+
+            if (!operationRegister.Success)
+                ErrorMessage = operationRegister.Message!;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ocurrió un error inesperado: {ex.Message}";
+        }
+        finally
+        {
+            loaderService.Hide();
+        }
     }
 }

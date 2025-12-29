@@ -32,12 +32,24 @@ builder.Services
         opt.Cookie.Name = "simple-crud-auth-cookie";
     });
 
+builder.Services.AddCors(options => { 
+    options.AddPolicy("ClientPolicy", policy => 
+    { 
+        policy.WithOrigins("https://simple-crud.client.andresgilglz.dev")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 //if (app.Environment.IsDevelopment())
 //{
 //    app.MapOpenApi();
 //}
+
+app.UseCors("ClientPolicy");
 
 app.UseHttpsRedirection();
 

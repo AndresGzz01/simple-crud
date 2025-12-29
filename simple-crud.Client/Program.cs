@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using simple_crud.Client;
 using simple_crud.Client.Infrastructure;
 using simple_crud.Client.Models;
+using simple_crud.Client.Validator.User;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -22,5 +23,9 @@ builder.Services.AddScoped(sp =>
 
 
 builder.Services.AddScoped<IBlogService, LabsystecBlogService>();
+
+builder.Services.AddScoped<CreateUserValidator>();
+
+builder.Services.AddSingleton<LoaderService>();
 
 await builder.Build().RunAsync();
