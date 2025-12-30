@@ -101,7 +101,7 @@ public class MariaDbRepository : IDatabaseRepository
         {
             dbConnection.Open();
 
-            var query = "SELECT Id, Titulo, UltimaActualizacion, Contenido, IdUsuario FROM post WHERE IdUsuario = @usuarioId";
+            var query = "SELECT Id, Titulo, UltimaActualizacion, IdUsuario FROM post WHERE IdUsuario = @usuarioId";
             var posts = await dbConnection.QueryAsync<Post>(query, new { usuarioId });
 
             return new OperationResult<IEnumerable<Post>>(true, value: posts);

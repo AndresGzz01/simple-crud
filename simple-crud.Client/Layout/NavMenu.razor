@@ -8,8 +8,10 @@
 <header>
     <AuthorizeView>
         <Authorized>
-            <NavLink href="" Match="NavLinkMatch.All">App de Blogs - @context.User.Identity.Name</NavLink>
+            <NavLink href="" Match="NavLinkMatch.All">App de Blogs - @context.User.Identity!.Name</NavLink>
             <div class="header-user-options">
+                <NavLink href="crear-post">Crear Post</NavLink>
+                <NavLink href="mis-post">Mis Post</NavLink>
                 <a href="#" @onclick="Logout">Cerrar sesión</a>
             </div>
         </Authorized>
@@ -28,6 +30,6 @@
     {
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
         ((JwtAuthStateProvider)AuthStateProvider).NotifyUserLogout();
-        NavigationManager.NavigateTo("/");        
+        NavigationManager.NavigateTo("/");
     }
 }

@@ -10,4 +10,6 @@ public interface IBlogService
     Task<OperationResult> LoginAsync(LoginUsuarioDTO loginUsuarioDTO);
 
     Task<OperationResult> LogoutAsync();
-} 
+
+    Task<OperationResult<IEnumerable<PostDto>>> GetPostByUserAsync(uint idUser);
+}

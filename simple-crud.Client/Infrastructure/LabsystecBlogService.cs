@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.JSInterop;
 
 using simple_crud.Client.Models;
 using simple_crud.Library.Models;
 using simple_crud.Library.Models.DTOs;
 
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace simple_crud.Client.Infrastructure;
@@ -21,6 +21,35 @@ public class LabsystecBlogService : IBlogService
         _jsRuntime = jsRuntime;
     }
 
+    public async Task<OperationResult<IEnumerable<PostDto>>> GetPostByUserAsync(uint idUser)
+    {
+        try
+        {
+            var token = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", "authToken");
+
+            if (string.IsNullOrEmpty(token))
+                return new OperationResult<IEnumerable<PostDto>>(false, "Sin Token de autorización.");
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.GetAsync($"usuario/{idUser}/posts");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+                return new OperationResult<IEnumerable<PostDto>>(false, $"{problem?.Detail ?? "Error desconocido"}");
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<IEnumerable<PostDto>>();
+
+            return new OperationResult<IEnumerable<PostDto>>(true, value: result);
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult<IEnumerable<PostDto>>(false, "An error occurred during fetching post", exception: ex);
+        }
+    }
+
     public async Task<OperationResult> LoginAsync(LoginUsuarioDTO dto)
     {
         try
@@ -28,7 +57,10 @@ public class LabsystecBlogService : IBlogService
             var response = await _httpClient.PostAsJsonAsync("auth/login", dto);
 
             if (!response.IsSuccessStatusCode)
-                return new OperationResult(false, "Login failed");
+            {
+                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+                return new OperationResult(false, $"{problem?.Detail ?? "Error desconocido"}");
+            }
 
             var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
@@ -50,7 +82,7 @@ public class LabsystecBlogService : IBlogService
         try
         {
             var response = await _httpClient.PostAsync("auth/logout", null);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
@@ -70,7 +102,7 @@ public class LabsystecBlogService : IBlogService
         try
         {
             var response = await _httpClient.PostAsJsonAsync("auth/register", createUsuarioDTO);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();

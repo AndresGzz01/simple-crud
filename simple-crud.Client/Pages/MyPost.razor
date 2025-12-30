@@ -1,0 +1,70 @@
+﻿@page "/mis-post"
+@inject IBlogService blogService
+@inject LoaderService loaderService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+@using Microsoft.IdentityModel.JsonWebTokens
+
+<h3>Mis Post</h3>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p style="color:red">@ErrorMessage</p>
+}
+
+@if (Posts.Any())
+{
+    <ul>
+        @foreach (var post in Posts)
+        {
+            <li>@post.Titulo - @post.UltimaActualizacion.ToString("dd/MM/yyyy HH-mm")</li>
+        }
+    </ul>
+}
+
+@code {
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    IEnumerable<PostDto> Posts { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity?.IsAuthenticated is false)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        try
+        {
+            loaderService.Show();
+
+            var userIdClaim = authState.User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+
+            if (userIdClaim is null || !uint.TryParse(userIdClaim.Value, out var userId))
+            {
+                ErrorMessage = "No se pudo obtener el usuario autenticado.";
+                return;
+            }
+
+            var operationPost = await blogService.GetPostByUserAsync(userId);
+
+            if (!operationPost.Success)
+                ErrorMessage = operationPost.Message!;
+            else
+                Posts = operationPost.Value!;
+
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            loaderService.Hide();
+        }
+    }
+}
