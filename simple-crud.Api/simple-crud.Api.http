@@ -25,8 +25,8 @@ Content-Type: application/json
 POST {{simple_crud.Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 {
-  "username": "ANDERSONSILVA2",
-  "password": "thisisansecretpassword"
+  "username": "testuser",
+  "password": "secretpassword"
 }
 
 ###

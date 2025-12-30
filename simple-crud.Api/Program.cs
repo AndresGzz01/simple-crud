@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.IdentityModel.Tokens;
 
 using MySqlConnector;
 
@@ -6,6 +6,7 @@ using simple_crud.Api.Infrastructure;
 using simple_crud.Api.Models;
 
 using System.Data.Common;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +27,24 @@ builder.Services.AddScoped<IDatabaseRepository, MariaDbRepository>();
 builder.Services.AddScoped<IPasswordHasher, Argon2Hasher>();
 
 builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(opt =>
+    .AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options => 
     {
-        opt.Cookie.Name = "simple-crud-auth-cookie";
+        var secretKey = builder.Configuration.GetValue<string>("SecretKey");
+
+        if (secretKey is null)
+            throw new InvalidOperationException("SecretKey configuration is missing.");
+
+        options.TokenValidationParameters = new TokenValidationParameters 
+            { 
+                ValidateIssuer = true, 
+                ValidateAudience = true, 
+                ValidateLifetime = true, 
+                ValidateIssuerSigningKey = true, 
+                ValidIssuer = "simple-crud.api", 
+                ValidAudience = "simple-crud.client", 
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) 
+        }; 
     });
 
 builder.Services.AddCors(options => { 

@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 using simple_crud.Api.Models;
 using simple_crud.Library.Models.DTOs;
 
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace simple_crud.Api.Controllers;
 
@@ -12,11 +15,13 @@ namespace simple_crud.Api.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly IDatabaseRepository databaseRepository;
+    readonly IDatabaseRepository databaseRepository;
+    readonly IConfiguration configuration;
 
-    public AuthController(IDatabaseRepository databaseRepository)
+    public AuthController(IDatabaseRepository databaseRepository, IConfiguration configuration)
     {
         this.databaseRepository = databaseRepository;
+        this.configuration = configuration;
     }
 
     [HttpPost("register")]
@@ -29,15 +34,22 @@ public class AuthController : ControllerBase
 
         var createdUsuario = operationCreate.Value!;
 
-        var claims = new List<Claim>
+        var secretKey = configuration.GetValue<string>("SecretKey");
+
+        if (string.IsNullOrEmpty(secretKey))
+            return Problem(detail: "Secret key is not configured.");
+
+        var claims = new[]
         {
-            new(ClaimTypes.NameIdentifier, createdUsuario.Id.ToString()),
-            new(ClaimTypes.Name, createdUsuario.Username)
+            new Claim(JwtRegisteredClaimNames.Sub, createdUsuario.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.UniqueName, createdUsuario.Username)
         };
 
-        await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(claims, "login")));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken( issuer: "simple-crud.api", audience: "simple-crud.client", claims: claims, expires: DateTime.UtcNow.AddHours(1), signingCredentials: creds);
 
-        return Ok(new { createdUsuario.Id, createdUsuario.Username });
+        return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token), createdUsuario.Id, createdUsuario.Username });
     }
 
     [HttpPost("login")]
@@ -48,15 +60,23 @@ public class AuthController : ControllerBase
             return Problem(detail: operationLogin.Message);
         var loggedInUsuario = operationLogin.Value!;
 
-        var claims = new List<Claim>
+        var secretKey = configuration.GetValue<string>("SecretKey");
+
+        if (string.IsNullOrEmpty(secretKey))
+            return Problem(detail: "Secret key is not configured.");
+
+        var claims = new[]
         {
-            new(ClaimTypes.NameIdentifier, loggedInUsuario.Id.ToString()),
-            new(ClaimTypes.Name, loggedInUsuario.Username)
+            new Claim(JwtRegisteredClaimNames.Sub, loggedInUsuario.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.UniqueName, loggedInUsuario.Username)
         };
 
-        await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(claims, "login")));
-
-        return Ok(new { loggedInUsuario.Id, loggedInUsuario.Username });
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)); 
+        
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); 
+        var token = new JwtSecurityToken( issuer: "simple-crud.api", audience: "simple-crud.client", claims: claims, expires: DateTime.UtcNow.AddHours(1), signingCredentials: creds); 
+        
+        return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token), loggedInUsuario.Id, loggedInUsuario.Username });
     }
 
     [HttpPost("logout")]
