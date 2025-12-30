@@ -42,7 +42,8 @@ public class AuthController : ControllerBase
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, createdUsuario.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, createdUsuario.Username)
+            new Claim(JwtRegisteredClaimNames.UniqueName, createdUsuario.Username),
+            new Claim(ClaimTypes.Name, createdUsuario.Username)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -68,7 +69,8 @@ public class AuthController : ControllerBase
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, loggedInUsuario.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, loggedInUsuario.Username)
+            new Claim(JwtRegisteredClaimNames.UniqueName, loggedInUsuario.Username),
+            new Claim(ClaimTypes.Name, loggedInUsuario.Username)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)); 

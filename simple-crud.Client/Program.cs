@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -27,5 +28,8 @@ builder.Services.AddScoped<CreateUserValidator>();
 builder.Services.AddScoped<LoginValidator>();
 
 builder.Services.AddSingleton<LoaderService>();
+
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
 
 await builder.Build().RunAsync();

@@ -2,7 +2,10 @@
 @inject IBlogService blogService
 @inject CreateUserValidator createUserValidator
 @inject LoaderService loaderService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
 
+@using Microsoft.AspNetCore.Components.Authorization
 @using simple_crud.Client.Infrastructure
 @using simple_crud.Client.Validator.User
 @using simple_crud.Library.Models.DTOs
@@ -53,6 +56,15 @@
     private Dictionary<string, string> ValidationErrors { get; set; } = new();
     private string ErrorMessage { get; set; } = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
     private async Task OnSubmit()
     {
         ErrorMessage = string.Empty;
@@ -84,7 +96,13 @@
             var operationRegister = await blogService.RegisterAsync(dto);
 
             if (!operationRegister.Success)
+            {
                 ErrorMessage = operationRegister.Message!;
+                return;
+            }
+
+            ((JwtAuthStateProvider)AuthStateProvider).NotifyUserAuthentication();
+            NavigationManager.NavigateTo("/");
         }
         catch (Exception ex)
         {

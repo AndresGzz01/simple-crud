@@ -1,7 +1,33 @@
-﻿<header>
-    <NavLink href="" Match="NavLinkMatch.All">App de Blogs</NavLink>
-    <div class="header-user-options">
-        <NavLink href="registrarme">Registrarme</NavLink>
-        <NavLink href="iniciar-sesion">Iniciar sesión</NavLink>
-    </div>
+﻿@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using simple_crud.Client.Infrastructure;
+
+<header>
+    <AuthorizeView>
+        <Authorized>
+            <NavLink href="" Match="NavLinkMatch.All">App de Blogs - @context.User.Identity.Name</NavLink>
+            <div class="header-user-options">
+                <a href="#" @onclick="Logout">Cerrar sesión</a>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <NavLink href="" Match="NavLinkMatch.All">App de Blogs</NavLink>
+            <div class="header-user-options">
+                <NavLink href="registrarme">Registrarme</NavLink>
+                <NavLink href="iniciar-sesion">Iniciar sesión</NavLink>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 </header>
+
+@code {
+    private async void Logout()
+    {
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        ((JwtAuthStateProvider)AuthStateProvider).NotifyUserLogout();
+        NavigationManager.NavigateTo("/");        
+    }
+}

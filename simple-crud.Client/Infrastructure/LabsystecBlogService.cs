@@ -1,36 +1,43 @@
-﻿using simple_crud.Client.Models;
+﻿using Microsoft.AspNetCore.Components.WebAssembly.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.JSInterop;
 
+using simple_crud.Client.Models;
 using simple_crud.Library.Models;
 using simple_crud.Library.Models.DTOs;
 
 using System.Net.Http.Json;
-
-using Microsoft.AspNetCore.Mvc;
 
 namespace simple_crud.Client.Infrastructure;
 
 public class LabsystecBlogService : IBlogService
 {
     readonly HttpClient _httpClient;
+    readonly IJSRuntime _jsRuntime;
 
-    public LabsystecBlogService(HttpClient httpClient)
+    public LabsystecBlogService(HttpClient httpClient, IJSRuntime jsRuntime)
     {
         _httpClient = httpClient;
+        _jsRuntime = jsRuntime;
     }
 
-    public async Task<OperationResult> LoginAsync(LoginUsuarioDTO loginUsuarioDTO)
+    public async Task<OperationResult> LoginAsync(LoginUsuarioDTO dto)
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("auth/login", loginUsuarioDTO);
-         
-            if (!response.IsSuccessStatusCode)
-            {
-                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-                return new OperationResult(false, $"{problem?.Detail ?? "Error desconocido"}");
-            }
+            var response = await _httpClient.PostAsJsonAsync("auth/login", dto);
 
-            return new OperationResult(true, "Login successful.");
+            if (!response.IsSuccessStatusCode)
+                return new OperationResult(false, "Login failed");
+
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+            if (result is null)
+                return new OperationResult(false, "Invalid login response");
+
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+
+            return new OperationResult(true, "Login successful");
         }
         catch (Exception ex)
         {
@@ -69,6 +76,13 @@ public class LabsystecBlogService : IBlogService
                 var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
                 return new OperationResult(false, $"{problem?.Detail ?? "Error desconocido"}");
             }
+
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+            if (result is null)
+                return new OperationResult(false, "Invalid login response");
+
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
 
             return new OperationResult(true, "Registration successful.");
         }
