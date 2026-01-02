@@ -1,0 +1,65 @@
+﻿@page "/post/{Titulo}"
+@inject IBlogService blogService
+@inject LoaderService loaderService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<h3>@Model?.Titulo</h3>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p style="color:red">@ErrorMessage</p>
+}
+
+@if (!string.IsNullOrEmpty(Model?.Contenido))
+{
+    <div class="post-contenido">
+        @((MarkupString)markdownHtml)
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Titulo { get; set; } = string.Empty;
+
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    PostDto? Model { get; set; }
+
+    string markdownHtml = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity?.IsAuthenticated is false)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        try
+        {
+            loaderService.Show();
+
+            var operationPost = await blogService.GetPostByTitle(Titulo);
+
+            if (operationPost.Success is false)
+            {
+                ErrorMessage = operationPost.Message!;
+                return;
+            }
+
+            Model = operationPost.Value;
+            markdownHtml = Markdig.Markdown.ToHtml(Model!.Contenido!);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            loaderService.Hide();
+        }
+    }
+}

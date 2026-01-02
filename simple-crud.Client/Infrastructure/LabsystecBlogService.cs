@@ -21,6 +21,35 @@ public class LabsystecBlogService : IBlogService
         _jsRuntime = jsRuntime;
     }
 
+    public async Task<OperationResult<PostDto?>> GetPostByTitle(string title)
+    {
+        try
+        {
+            var token = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", "authToken");
+
+            if (string.IsNullOrEmpty(token))
+                return new OperationResult<PostDto?>(false, "Sin Token de autorización.");
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.GetAsync($"post/{title}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+                return new OperationResult<PostDto?>(false, $"{problem?.Detail ?? "Error desconocido"}");
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<PostDto>();
+
+            return new OperationResult<PostDto?>(true, value: result);
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult<PostDto?>(false, "An error occurred during fetching post", exception: ex);
+        }
+    }
+
     public async Task<OperationResult<IEnumerable<PostDto>>> GetPostByUserAsync(uint idUser)
     {
         try

@@ -15,10 +15,10 @@
 
 @if (Posts.Any())
 {
-    <ul>
+    <ul class="post-flex-list">
         @foreach (var post in Posts)
         {
-            <li>@post.Titulo - @post.UltimaActualizacion.ToString("dd/MM/yyyy HH-mm")</li>
+            <li @onclick="() => OpenPost(post.Titulo)">@post.Titulo <span class="post-date">@post.UltimaActualizacion.ToString("dd/MM/yyyy HH:mm")</span></li>
         }
     </ul>
 }
@@ -66,5 +66,12 @@
         {
             loaderService.Hide();
         }
+    }
+
+    void OpenPost(string titulo)
+    {
+        titulo = titulo.Replace(' ', '-').ToLower();
+        var tituloEncoded = Uri.EscapeDataString(titulo);
+        NavigationManager.NavigateTo($"/post/{tituloEncoded}");
     }
 }

@@ -12,4 +12,6 @@ public interface IBlogService
     Task<OperationResult> LogoutAsync();
 
     Task<OperationResult<IEnumerable<PostDto>>> GetPostByUserAsync(uint idUser);
+
+    Task<OperationResult<PostDto?>> GetPostByTitle(string title);
 }

@@ -19,7 +19,7 @@ body {
     font-optical-sizing: auto;
     font-style: normal;
     font-variation-settings: "GRAD" 0;
-    height: 100dvh;
+    min-height: 100dvh;
 }
 
 header {
@@ -32,6 +32,11 @@ header {
     flex-direction: row;
     justify-content: space-between;
     max-height: 4rem;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(245, 245, 234, 0.75);
+    position: sticky;
+    top: 0;
 }
 
     header h2,
@@ -63,8 +68,38 @@ header {
 
 main {
     grid-area: main;
-    min-height: 80dvh;
     padding: 1rem;
+    min-height: 60dvh;
+    overflow-y: auto;
+
+
+    .post-flex-list {
+        list-style: none;
+        padding: 0px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        overflow-y: auto;
+        max-height: 60dvh;
+
+        li {
+            box-sizing: content-box;
+            padding: 1rem 1rem;
+            border-radius: 0.9rem;
+            transition: background-color ease-in 0.2s;
+        }
+
+            li:hover {
+                cursor: pointer;
+                background-color: #f5f5ea;
+            }
+
+        .post-date {
+            display: block;
+            color: grey;
+            font-size: 0.7rem;
+        }
+    }
 }
 
     main h1 {
@@ -75,13 +110,26 @@ main {
         font-size: 2rem;
     }
 
+.post-contenido {
+    pre code {
+        max-width: 100%;
+        width: 100%;
+        padding: 1rem;
+        overflow-x: auto;
+        display: inline-block;
+        background-color: #f4f4f4;
+    }
+}
+
 footer {
     grid-area: footer;
     background-color: #141510;
     padding: 2rem;
-    margin-top: 1rem;
+    margin-top: 5rem;
     color: #fff;
     position: relative;
+    max-height: 4rem;
+    align-self: end;
 }
 
     footer .footer-legend {
