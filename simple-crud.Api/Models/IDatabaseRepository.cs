@@ -48,4 +48,10 @@ public interface IDatabaseRepository
     /// </summary>
     /// <param name="usuarioId">Indica el identificador único de cada usuario.</param>
     Task<OperationResult<IEnumerable<Post>>> GetPostsByUsuarioId(uint usuarioId);
+
+    /// <summary>
+    /// Obtiene el post que corresponde con el titulo proporcionado.
+    /// </summary>
+    /// <param name="titulo">Titulo por el que será identificado</param>
+    Task<OperationResult<Post>> GetPostsByTitulo(string titulo);
 }

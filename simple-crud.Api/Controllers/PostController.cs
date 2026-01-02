@@ -27,4 +27,15 @@ public class PostController : ControllerBase
         
         return Ok(result.Value);
     }
+
+    [HttpGet("/api/post/{titulo}")]
+    public async Task<IActionResult> GetPostsByTitulo(string titulo)
+    {
+        var result = await databaseRepository.GetPostsByTitulo(titulo);
+
+        if (!result.Success)
+            return StatusCode(500, result.Message);
+        
+        return Ok(result.Value);
+    }
 }

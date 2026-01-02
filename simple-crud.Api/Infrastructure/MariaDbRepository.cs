@@ -95,6 +95,29 @@ public class MariaDbRepository : IDatabaseRepository
         }
     }
 
+    public async Task<OperationResult<Post>> GetPostsByTitulo(string titulo)
+    {
+        try
+        {
+            titulo = titulo.Replace('-', ' ').ToLower();
+
+            await dbConnection.OpenAsync();
+
+            var query = "SELECT * FROM post WHERE LOWER(Titulo) = @titulo LIMIT 1";
+            var post = await dbConnection.QuerySingleOrDefaultAsync<Post?>(query, new { titulo });
+
+            return new OperationResult<Post>(true, value: post);
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult<Post> (false, "Error al obtener post.", exception: ex);
+        }
+        finally
+        {
+            dbConnection.Close();
+        }
+    }
+
     public async Task<OperationResult<IEnumerable<Post>>> GetPostsByUsuarioId(uint usuarioId)
     {
         try
