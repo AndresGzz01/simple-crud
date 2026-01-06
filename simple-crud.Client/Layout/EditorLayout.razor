@@ -1,0 +1,21 @@
+﻿@using simple_crud.Client.Infrastructure
+@inherits LayoutComponentBase
+@inject LoaderService loaderService
+
+<NavMenu />
+
+<main style="max-width: inherit;">
+    @Body
+</main>
+<div class="loader-overlay" id="loader" style="@GetDisplay()">
+    <div class="loader"></div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        loaderService.OnChange += StateHasChanged;
+    }
+
+    private string GetDisplay() => loaderService.IsLoading ? "display:block;" : "display:none;";
+}

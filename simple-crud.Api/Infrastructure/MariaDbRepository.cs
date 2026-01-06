@@ -20,6 +20,44 @@ public class MariaDbRepository : IDatabaseRepository
         this.passwordHasher = passwordHasher;
     }
 
+    public async Task<OperationResult<Post>> CreatePost(PostDto postDto)
+    {
+        try
+        {
+            await dbConnection.OpenAsync();
+
+            var existQuery = "SELECT COUNT(1) FROM Post WHERE upper(Titulo) = @titulo";
+            var exist = await dbConnection.ExecuteScalarAsync<int>(existQuery, new { titulo = postDto.Titulo.ToUpper() });
+
+            if (exist > 0)
+                return new OperationResult<Post>(false, "El titulo del post ya existe.");
+
+            var insertQuery = "INSERT INTO Post (Titulo, Contenido, IdUsuario) VALUES (@titulo, @contenido, @idUsuario);";
+            var result = await dbConnection.ExecuteAsync(insertQuery, new { titulo = postDto.Titulo, contenido = postDto.Contenido, idUsuario = postDto.IdUsuario });
+
+            if (result == 0)
+                return new OperationResult<Post>(false, "No se pudo crear el post.");
+
+            var newId = await dbConnection.ExecuteScalarAsync<uint>("SELECT LAST_INSERT_ID();");
+
+            var newPost = new Post
+            {
+                Id = newId,
+                Titulo = postDto.Titulo
+            };
+
+            return new OperationResult<Post>(true, "Post creado exitosamente.", newPost);
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult<Post>(false, ex.Message);
+        }
+        finally
+        {
+            dbConnection.Close();
+        }
+    }
+
     public async Task<OperationResult<Usuario>> CreateUsuario(CreateUsuarioDTO createUsuarioDTO)
     {
         try

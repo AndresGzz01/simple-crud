@@ -1,0 +1,108 @@
+﻿@page "/crear-post"
+@layout EditorLayout
+
+@using simple_crud.Client.Validator.Post
+
+@inject IBlogService blogService
+@inject CreatePostValidator createPostValidator
+@inject LoaderService loaderService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<form class="editor-contenedor" onsubmit="@OnSubmit">
+    <div style="display: flex; flex-direction: column; gap: 1rem; border-right: 1px solid #ddd">
+        <h3>Crear Post</h3>
+        <input type="text" placeholder="Titulo" required @bind="Titulo" />
+        <MarkdownEditor @bind-Value="@markdownValue" ValueHTMLChanged="@OnMarkdownValueHTMLChanged" />
+
+        @if (string.IsNullOrEmpty(ErrorMessage) is false)
+        {
+            <p class="input-error">@ErrorMessage</p>
+        }
+
+        <input type="submit" value="Guardar" />
+    </div>
+    <div>
+        @((MarkupString)markdownHtml)
+    </div>
+</form>
+
+@code {
+    private string Titulo { get; set; } = string.Empty;
+    private Dictionary<string, string> ValidationErrors { get; set; } = new();
+    public string ErrorMessage { get; set; } = string.Empty;
+
+    string markdownValue = string.Empty;
+    string markdownHtml = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity?.IsAuthenticated is false)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+    }
+
+    private async Task OnSubmit()
+    {
+        ErrorMessage = string.Empty;
+        ValidationErrors.Clear();
+
+        var dto = new PostDto
+        {
+            Contenido = markdownValue,
+            Titulo = Titulo
+        };
+
+        var validationResult = await createPostValidator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            foreach (var error in validationResult.Errors)
+            {
+                // Guardamos el primer error por propiedad
+                if (!ValidationErrors.ContainsKey(error.PropertyName))
+                    ValidationErrors[error.PropertyName] = error.ErrorMessage;
+            }
+            return; // detenemos aquí si hay errores
+        }
+
+        try
+        {
+            loaderService.Show();
+
+            var operationCreate = await blogService.CreatePostAsync(dto);
+
+            if (!operationCreate.Success)
+            {
+                ErrorMessage = operationCreate.Message!;
+                return;
+            }
+
+            ((JwtAuthStateProvider)AuthStateProvider).NotifyUserAuthentication();
+            NavigationManager.NavigateTo("/mis-post");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Ocurrió un error inesperado: {ex.Message}";
+        }
+        finally
+        {
+            loaderService.Hide();
+        }
+    }
+
+    Task OnMarkdownValueChanged(string value)
+    {
+        return Task.CompletedTask;
+    }
+
+    Task OnMarkdownValueHTMLChanged(string value)
+    {
+        markdownHtml = value;
+        return Task.CompletedTask;
+    }
+}

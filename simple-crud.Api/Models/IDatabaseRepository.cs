@@ -54,4 +54,7 @@ public interface IDatabaseRepository
     /// </summary>
     /// <param name="titulo">Titulo por el que será identificado</param>
     Task<OperationResult<Post>> GetPostsByTitulo(string titulo);
+
+
+    Task<OperationResult<Post>> CreatePost(PostDto postDto);
 }

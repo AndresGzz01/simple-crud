@@ -1,9 +1,13 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using FluentValidation;
+
+using Microsoft.IdentityModel.Tokens;
 
 using MySqlConnector;
 
 using simple_crud.Api.Infrastructure;
 using simple_crud.Api.Models;
+using simple_crud.Api.Validators;
+using simple_crud.Library.Models.DTOs;
 
 using System.Data.Common;
 using System.Text;
@@ -14,6 +18,8 @@ builder.Services.AddOptions<Argon2Options>()
     .Bind(builder.Configuration.GetSection("Argon2Options"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+builder.Services.AddScoped<IValidator<PostDto>, PostValidator>();
 
 builder.Services.AddControllers();
 //builder.Services.AddOpenApi();

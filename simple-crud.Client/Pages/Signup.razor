@@ -1,11 +1,12 @@
 ﻿@page "/registrarme"
+
+@using simple_crud.Client.Validator.User
+
 @inject IBlogService blogService
 @inject CreateUserValidator createUserValidator
 @inject LoaderService loaderService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
-
-@using simple_crud.Client.Validator.User
 
 <h3>Registrarme</h3>
 
